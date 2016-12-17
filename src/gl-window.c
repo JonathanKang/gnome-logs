@@ -254,6 +254,47 @@ on_export (GSimpleAction *action,
 }
 
 static void
+on_refresh_list (GSimpleAction *action,
+                 GVariant *variant,
+                 gpointer user_data)
+{
+    GlWindow *window = GL_WINDOW (user_data);
+    GlWindowPrivate *priv;
+    GlEventView *event;
+    GlJournalBootID *boot_id;
+    const gchar *boot_match;
+    const gchar *current_match;
+    GAction *view_boot;
+    GArray *boot_ids;
+    GVariant *v;
+    gint i;
+
+    priv = gl_window_get_instance_private (GL_WINDOW (user_data));
+    event = GL_EVENT_VIEW (priv->event);
+
+    boot_ids = gl_event_view_get_boot_ids (event);
+    current_match = gl_event_view_get_boot_match (event);
+
+    if (boot_ids->len > 0)
+    {
+        /* See which boot we are viewing logs from */
+        for (i = boot_ids->len - 1; i >= 0; i--)
+        {
+            boot_id = &g_array_index (boot_ids, GlJournalBootID, i);
+            boot_match = boot_id->boot_match;
+
+            if (g_strcmp0 (current_match, boot_match) == 0)
+            {
+                view_boot = g_action_map_lookup_action (G_ACTION_MAP (window),
+                                                        "view-boot");
+                v = g_variant_new_string (boot_match);
+                g_action_change_state (view_boot, v);
+            }
+        }
+    }
+}
+
+static void
 on_view_boot (GSimpleAction *action,
               GVariant *variant,
               gpointer user_data)
@@ -385,6 +426,7 @@ static GActionEntry actions[] = {
     { "search", on_action_toggle, NULL, "false", on_search },
     { "view-boot", on_action_radio, "s", "''", on_view_boot },
     { "export", on_export },
+    { "refresh-list", on_refresh_list },
     { "close", on_close }
 };
 
