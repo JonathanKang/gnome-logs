@@ -287,7 +287,7 @@ on_view_boot (GSimpleAction *action,
 
 static void
 on_category_list_changed (GlCategoryList *list,
-                          GparamSpec *pspec,
+                          GParamSpec *pspec,
                           gpointer user_data)
 {
     GlWindowPrivate *priv;
@@ -298,7 +298,7 @@ on_category_list_changed (GlCategoryList *list,
 
     priv = gl_window_get_instance_private (GL_WINDOW (user_data));
     event = GL_EVENT_VIEW (priv->event);
-    toolbar = GL_EVENT_TOOLBAR (priv->toolbar);
+    toolbar = GL_EVENT_TOOLBAR (priv->event_toolbar);
 
     boot_match = gl_event_view_get_boot_match (event);
     current_boot = gl_event_view_get_current_boot_time (event, boot_match);
@@ -439,6 +439,7 @@ gl_window_init (GlWindow *window)
     GlWindowPrivate *priv;
     GlEventToolbar *toolbar;
     GlEventView *event;
+    GtkWidget *categories;
     GAction *action_view_boot;
     GArray *boot_ids;
     GlJournalStorage storage_type;
@@ -470,6 +471,10 @@ gl_window_init (GlWindow *window)
         variant = g_variant_new_string (boot_match);
         g_action_change_state (action_view_boot, variant);
     }
+
+    categories = gl_event_view_get_category_list (event);
+    g_signal_connect (GL_CATEGORY_LIST (categories), "notify::category",
+                      G_CALLBACK (on_category_list_changed), window);
 
     provider = gtk_css_provider_new ();
     g_signal_connect (provider, "parsing-error",
