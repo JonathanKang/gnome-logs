@@ -70,6 +70,18 @@ gl_event_view_get_category_list (GlEventView *view)
     return gl_event_view_list_get_category_list (events);
 }
 
+const gchar *
+gl_event_view_get_boot_match (GlEventView *view)
+{
+    GlEventViewPrivate *priv;
+    GlEventViewList *events;
+
+    priv = gl_event_view_get_instance_private (view);
+    events = GL_EVENT_VIEW_LIST (priv->events);
+
+    return gl_event_view_list_get_boot_match (events);
+}
+
 gchar *
 gl_event_view_get_output_logs (GlEventView *view)
 {

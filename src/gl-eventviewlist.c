@@ -77,6 +77,16 @@ gl_event_view_list_get_category_list (GlEventViewList *view)
     return priv->categories;
 }
 
+const gchar *
+gl_event_view_list_get_boot_match (GlEventViewList *view)
+{
+    GlEventViewListPrivate *priv;
+
+    priv = gl_event_view_list_get_instance_private (view);
+
+    return priv->boot_match;
+}
+
 gchar *
 gl_event_view_list_get_output_logs (GlEventViewList *view)
 {
