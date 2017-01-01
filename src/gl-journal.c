@@ -58,6 +58,45 @@ typedef struct
 
 G_DEFINE_TYPE_WITH_PRIVATE (GlJournal, gl_journal, G_TYPE_OBJECT)
 
+static void
+gl_journal_update_latest_timestamp (GlJournal *journal)
+{
+    GlJournalPrivate *priv;
+    GlJournalBootID *boot_id;
+    gint r;
+
+    g_return_if_fail (GL_JOURNAL (journal));
+
+    priv = gl_journal_get_instance_private (journal);
+
+    r = sd_journal_seek_tail (priv->journal);
+    if (r < 0)
+    {
+        g_warning ("Error seeking to the end of the journal: %s",
+                   g_strerror (-r));
+    }
+
+    r = sd_journal_previous (priv->journal);
+    if (r < 0)
+    {
+        g_warning ("Error retreating the read pointer in the journal: %s",
+                   g_strerror (-r));
+    }
+    else if (r == 0)
+    {
+    }
+
+    boot_id = g_array_index (priv->boot_ids, GlJournalBootID *,
+                             priv->boot_ids->len - 1);
+    r = sd_journal_get_realtime_usec (priv->journal,
+                                      &boot_id.realtime_last);
+    if (r < 0)
+    {
+        g_warning ("Error retrieving the sender timestamps: %s",
+                   g_strerror (-r));
+    }
+}
+
 GQuark
 gl_journal_error_quark (void)
 {
@@ -72,6 +111,7 @@ gl_journal_get_current_boot_time (GlJournal *journal,
     gchar *time;
     gint i;
 
+    gl_journal_update_latest_timestamp (journal);
     boot_ids = gl_journal_get_boot_ids (journal);
 
     for (i = 0; i < boot_ids->len; i++)
