@@ -64,6 +64,7 @@ gl_journal_update_latest_timestamp (GlJournal *journal)
     GlJournalPrivate *priv;
     GlJournalBootID *boot_id;
     gint r;
+    guint64 realtime;
 
     g_return_if_fail (GL_JOURNAL (journal));
 
@@ -86,14 +87,19 @@ gl_journal_update_latest_timestamp (GlJournal *journal)
     {
     }
 
-    boot_id = g_array_index (priv->boot_ids, GlJournalBootID *,
-                             priv->boot_ids->len - 1);
+    boot_id = &g_array_index (priv->boot_ids, GlJournalBootID,
+                              priv->boot_ids->len - 1);
     r = sd_journal_get_realtime_usec (priv->journal,
-                                      &boot_id.realtime_last);
+                                      &realtime);
     if (r < 0)
     {
         g_warning ("Error retrieving the sender timestamps: %s",
                    g_strerror (-r));
+    }
+
+    if (realtime > boot_id->realtime_last)
+    {
+        boot_id->realtime_last = realtime;
     }
 }
 
