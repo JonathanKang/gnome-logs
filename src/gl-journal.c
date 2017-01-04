@@ -101,6 +101,15 @@ gl_journal_update_latest_timestamp (GlJournal *journal)
     {
         boot_id->realtime_last = realtime;
     }
+
+    /* We set the reading cursor to the latest log entry using
+     * sd_journal_previous. Reset it here. */
+    r = sd_journal_seek_tail (priv->journal);
+    if (r < 0)
+    {
+        g_warning ("Error seeking to the end of the journal: %s",
+                   g_strerror (-r));
+    }
 }
 
 GQuark
