@@ -302,8 +302,11 @@ on_view_boot (GSimpleAction *action,
     GlWindowPrivate *priv;
     GlEventView *event;
     GlEventToolbar *toolbar;
+    GArray *boot_ids;
+    GlJournalBootID *boot_id;
     gchar *current_boot;
     const gchar *boot_match;
+    const gchar *latest_boot;
 
     priv = gl_window_get_instance_private (GL_WINDOW (user_data));
     event = GL_EVENT_VIEW (priv->event);
@@ -319,7 +322,13 @@ on_view_boot (GSimpleAction *action,
         g_debug ("Error fetching the time using boot_match");
     }
 
-    gl_event_toolbar_change_current_boot (toolbar, current_boot);
+    boot_ids = gl_event_view_get_boot_ids (event);
+    boot_id = &g_array_index (boot_ids, GlJournalBootID,
+                              boot_ids->len - 1);
+    latest_boot = gl_event_view_get_current_boot_time (event,
+                                                       boot_id->boot_match);
+
+    gl_event_toolbar_change_current_boot (toolbar, current_boot, latest_boot);
 
     g_simple_action_set_state (action, variant);
 
@@ -344,7 +353,7 @@ on_category_list_changed (GlCategoryList *list,
     boot_match = gl_event_view_get_boot_match (event);
     current_boot = gl_event_view_get_current_boot_time (event, boot_match);
 
-    gl_event_toolbar_change_current_boot (toolbar, current_boot);
+    gl_event_toolbar_change_current_boot (toolbar, current_boot, current_boot);
 
     g_free (current_boot);
 }
