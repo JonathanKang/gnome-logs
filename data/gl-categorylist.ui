@@ -153,5 +153,20 @@
                 </child>
             </object>
         </child>
+        <child>
+            <object class="GtkListBoxRow" id="follow">
+                <property name="visible">True</property>
+                <style>
+                    <class name="category"/>
+                </style>
+                <child>
+                    <object class="GtkLabel" id="follow_label">
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Follow</property>
+                        <property name="visible">True</property>
+                    </object>
+                </child>
+            </object>
+        </child>
     </template>
 </interface>

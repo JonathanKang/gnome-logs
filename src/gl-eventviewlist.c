@@ -441,6 +441,10 @@ query_add_category_matches (GlQuery *query,
                 gl_query_add_match (query, "_AUDIT_SESSION", NULL, GL_QUERY_SEARCH_TYPE_EXACT);
             }
             break;
+        case GL_CATEGORY_LIST_FILTER_FOLLOW:
+            {
+            }
+            break;
 
         default:
             g_assert_not_reached ();

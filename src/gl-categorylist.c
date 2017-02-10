@@ -42,6 +42,7 @@ typedef struct
     GtkWidget *hardware;
     GtkWidget *updates;
     GtkWidget *usage;
+    GtkWidget *follow;
     GlCategoryListFilter category;
 } GlCategoryListPrivate;
 
@@ -130,6 +131,10 @@ on_gl_category_list_row_selected (GlCategoryList *listbox,
     else if (row == GTK_LIST_BOX_ROW (priv->usage))
     {
         evalue = g_enum_get_value (eclass, GL_CATEGORY_LIST_FILTER_USAGE);
+    }
+    else if (row == GTK_LIST_BOX_ROW (priv->follow))
+    {
+        evalue = g_enum_get_value (eclass, GL_CATEGORY_LIST_FILTER_FOLLOW);
     }
     else
     {
@@ -238,6 +243,8 @@ gl_category_list_class_init (GlCategoryListClass *klass)
                                                   updates);
     gtk_widget_class_bind_template_child_private (widget_class, GlCategoryList,
                                                   usage);
+    gtk_widget_class_bind_template_child_private (widget_class, GlCategoryList,
+                                                  follow);
 
     gtk_widget_class_bind_template_callback (widget_class,
                                              on_gl_category_list_row_selected);
