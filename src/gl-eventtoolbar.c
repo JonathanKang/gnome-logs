@@ -73,7 +73,6 @@ gl_event_toolbar_update_boot_menu_label (GlEventToolbar *toolbar,
     g_menu_insert_item (G_MENU (section), 0, menu_item);
 }
 
-
 void
 gl_event_toolbar_change_current_boot (GlEventToolbar *toolbar,
                                       const gchar *current_boot,
