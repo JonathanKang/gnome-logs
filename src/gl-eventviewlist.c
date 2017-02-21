@@ -380,10 +380,14 @@ get_current_boot_id (const gchar *boot_match)
 }
 
 static void
-query_add_category_matches (GlQuery *query,
+query_add_category_matches (GlEventViewList *view,
+                            GlQuery *query,
                             GlCategoryList *list)
 {
+    GlEventViewListPrivate *priv;
     GlCategoryListFilter filter;
+
+    priv = gl_event_view_list_get_instance_private (view);
 
     /* Add exact matches according to selected category */
     filter = gl_category_list_get_category (list);
@@ -449,7 +453,8 @@ query_add_category_matches (GlQuery *query,
 
                 now = g_date_time_new_now_local ();
                 timestamp_now = g_date_time_to_unix (now) * G_USEC_PER_SEC;
-                timestamp_start = timestamp_now - 60 * G_USEC_PER_SEC;
+
+                timestamp_start = gl_journal_model_get_timestamp_last_fifth (priv->journal_model);
 
                 gl_query_set_journal_timestamp_range (query,
                                                       timestamp_now,
@@ -644,7 +649,7 @@ create_query_object (GlEventViewList *view)
     /* Set journal timestamp range */
     query_add_journal_range_filter (query, view);
 
-    query_add_category_matches (query, list);
+    query_add_category_matches (view, query, list);
 
     query_add_search_matches (query, priv->search_text, priv->journal_search_field, priv->search_type);
 

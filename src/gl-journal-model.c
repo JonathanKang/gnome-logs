@@ -958,6 +958,12 @@ search_in_entry (GlJournalEntry *entry,
     return matches;
 }
 
+guint64
+gl_journal_model_get_timestamp_last_fifth (GlJournalModel *model)
+{
+    return gl_journal_get_timestamp_last_fifth (model->journal);
+}
+
 gchar *
 gl_journal_model_get_boot_time (GlJournalModel *model,
                                 const gchar *boot_match)

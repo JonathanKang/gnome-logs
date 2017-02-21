@@ -65,6 +65,8 @@ void                    gl_journal_model_fetch_more_entries             (GlJourn
 
 GArray *                gl_journal_model_get_boot_ids                   (GlJournalModel *model);
 
+guint64                  gl_journal_model_get_timestamp_last_fifth (GlJournalModel *model);
+
 gchar *                 gl_journal_model_get_boot_time                  (GlJournalModel *model,
                                                                          const gchar *boot_match);
 

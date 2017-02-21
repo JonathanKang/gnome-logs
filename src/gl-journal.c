@@ -64,6 +64,54 @@ gl_journal_error_quark (void)
     return g_quark_from_static_string ("gl-journal-error-quark");
 }
 
+guint64
+gl_journal_get_timestamp_last_fifth (GlJournal *journal)
+{
+    GlJournalPrivate *priv;
+    gint ret;
+    gint i;
+    guint64 timestamp;
+
+    priv = gl_journal_get_instance_private (journal);
+
+    ret = sd_journal_seek_tail (priv->journal);
+    if (ret < 0)
+    {
+        g_warning ("Error seeking to the end of the journal: %s",
+                   g_strerror (-ret));
+    }
+
+    for (i = 0; i < 5; i++)
+    {
+        ret = sd_journal_previous (priv->journal);
+        if (ret < 0)
+        {
+            g_warning ("Error retreating the read pointer in the journal: %s",
+                       g_strerror (-ret));
+        }
+        else if (ret == 0)
+        {
+            break;
+        }
+    }
+
+    ret = sd_journal_get_realtime_usec (priv->journal, &timestamp);
+    if (ret < 0)
+    {
+        g_warning ("Error retrieving the sender timestamps: %s",
+                   g_strerror (-ret));
+    }
+
+    ret = sd_journal_seek_tail (priv->journal);
+    if (ret < 0)
+    {
+        g_warning ("Error seeking to the end of the journal: %s",
+                   g_strerror (-ret));
+    }
+
+    return timestamp;
+}
+
 gchar *
 gl_journal_get_boot_time (GlJournal *journal,
                           const gchar *boot_match)
