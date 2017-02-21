@@ -443,6 +443,19 @@ query_add_category_matches (GlQuery *query,
             break;
         case GL_CATEGORY_LIST_FILTER_FOLLOW:
             {
+                GDateTime *now;
+                gint64 timestamp_start;
+                gint64 timestamp_now;
+
+                now = g_date_time_new_now_local ();
+                timestamp_now = g_date_time_to_unix (now) * G_USEC_PER_SEC;
+                timestamp_start = timestamp_now - 60 * G_USEC_PER_SEC;
+
+                gl_query_set_journal_timestamp_range (query,
+                                                      timestamp_now,
+                                                      timestamp_start);
+
+                g_date_time_unref (now);
             }
             break;
 
