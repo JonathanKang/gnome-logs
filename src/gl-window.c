@@ -261,8 +261,11 @@ on_view_boot (GSimpleAction *action,
     GlWindowPrivate *priv;
     GlEventView *event;
     GlEventToolbar *toolbar;
+    GArray *boot_ids;
+    GlJournalBootID *boot_id;
     gchar *current_boot;
     const gchar *boot_match;
+    const gchar *latest_boot;
 
     priv = gl_window_get_instance_private (GL_WINDOW (user_data));
     event = GL_EVENT_VIEW (priv->event);
@@ -278,9 +281,38 @@ on_view_boot (GSimpleAction *action,
         g_debug ("Error fetching the time using boot_match");
     }
 
-    gl_event_toolbar_change_current_boot (toolbar, current_boot);
+    boot_ids = gl_event_view_get_boot_ids (event);
+    boot_id = &g_array_index (boot_ids, GlJournalBootID,
+                              boot_ids->len - 1);
+    latest_boot = gl_event_view_get_boot_time (event,
+                                               boot_id->boot_match);
+
+    gl_event_toolbar_change_current_boot (toolbar, current_boot, latest_boot);
 
     g_simple_action_set_state (action, variant);
+
+    g_free (current_boot);
+}
+
+static void
+on_category_list_changed (GlCategoryList *list,
+                          GParamSpec *pspec,
+                          gpointer user_data)
+{
+    GlWindowPrivate *priv;
+    GlEventView *event;
+    GlEventToolbar *toolbar;
+    gchar *current_boot;
+    const gchar *boot_match;
+
+    priv = gl_window_get_instance_private (GL_WINDOW (user_data));
+    event = GL_EVENT_VIEW (priv->event);
+    toolbar = GL_EVENT_TOOLBAR (priv->event_toolbar);
+
+    boot_match = gl_event_view_get_boot_match (event);
+    current_boot = gl_event_view_get_boot_time (event, boot_match);
+
+    gl_event_toolbar_change_current_boot (toolbar, current_boot, current_boot);
 
     g_free (current_boot);
 }
@@ -416,6 +448,7 @@ gl_window_init (GlWindow *window)
     GlWindowPrivate *priv;
     GlEventToolbar *toolbar;
     GlEventView *event;
+    GtkWidget *categories;
     GAction *action_view_boot;
     GArray *boot_ids;
     GlJournalStorage storage_type;
@@ -447,6 +480,10 @@ gl_window_init (GlWindow *window)
         variant = g_variant_new_string (boot_match);
         g_action_change_state (action_view_boot, variant);
     }
+
+    categories = gl_event_view_get_category_list (event);
+    g_signal_connect (GL_CATEGORY_LIST (categories), "notify::category",
+                      G_CALLBACK (on_category_list_changed), window);
 
     provider = gtk_css_provider_new ();
     g_signal_connect (provider, "parsing-error",
