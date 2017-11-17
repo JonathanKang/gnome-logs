@@ -1,0 +1,2 @@
+option('disable-tests', type : 'boolean', value : false, description : 'Disable support for tests run during make check')
+option('disable-man', type : 'boolean', value : false, description : 'Disable building the man page')
